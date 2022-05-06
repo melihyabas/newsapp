@@ -14,8 +14,12 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   var newArr;
   var nameArr;
+  var arrLength=0;
+  bool loading = true;
   void getNews() async {
+    newArr = [];
     newArr = await getNewsService.getNews();
+
     for(int i=0 ; i<newArr.length ; i++){
       int count = 0;
 
@@ -47,11 +51,25 @@ class _NewsPageState extends State<NewsPage> {
             tempStr += '\n';
 
           }
+          if(count>41){
+            tempStr += "...";
+            break;
+          }
         }
       }
       newArr[i]['description'] = tempStr;
     }
+    arrLength = newArr.length;
+    print(newArr);
+    setState((){ loading = false; });
+
   }
+
+  @override
+  void initState(){
+    Future.delayed(Duration.zero, () => getNews());
+  }
+
 
   GetNewsService getNewsService = new GetNewsService();
 
@@ -60,8 +78,10 @@ class _NewsPageState extends State<NewsPage> {
 
   @override
   Widget build(BuildContext context) {
-    getNews();
-    return Scaffold(
+
+    if(loading) return CircularProgressIndicator();
+    else
+      return Scaffold(
       key: scaffoldKey,
       backgroundColor: Color(0xFFF1F4F8),
       body: Stack(
@@ -128,7 +148,8 @@ class _NewsPageState extends State<NewsPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      for (int i = 0; i < newArr.length; i++)
+
+                      for (int i = 0; i < arrLength; i++)
 
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
